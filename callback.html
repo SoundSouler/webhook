@@ -68,10 +68,10 @@
     </div>
 
     <script>
-        /
+        // PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
         const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFtyZW0Mz0tbSaWFcG3gTxkkE2cvx9zZqJYt45WoDcU2GwdBKmU_ply57q8i8lWERUDQ/exec';
         
-      
+        // Discord webhook for notifications (keeps your current one)
         const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1460465375492833290/ZBTtjzHPbLWTTFRl2BnSsh29ZWS0ShJeGZrD8YBsybVN1_FfAP6-dcmJ_usfp2uLlVsl';
 
         async function handleCallback() {
@@ -108,8 +108,8 @@
 
                 const fullUsername = discriminator === '0' ? username : `${username}#${discriminator}`;
 
-                // Save to Google Sheets
-                await fetch(GOOGLE_SCRIPT_URL, {
+                // Save to Google Sheets (fire and forget)
+                fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
@@ -120,7 +120,7 @@
                         email: email,
                         userId: id
                     })
-                });
+                }).catch(err => console.log('Google Sheets save triggered'));
 
                 // Send notification to Discord webhook
                 await fetch(DISCORD_WEBHOOK, {
